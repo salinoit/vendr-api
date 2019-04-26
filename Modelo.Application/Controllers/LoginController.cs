@@ -33,20 +33,26 @@ namespace Vendr.Application.Controllers
 
             if (user != null && !String.IsNullOrWhiteSpace(user.email) )
             {
-                string[] inc = {"Vendedor","Consumidor" };
+                string[] inc = {"Vendedor","Consumidor","Fornecedor" };
 
                 //williamzz@ig.com.br
-                List<Perfil> v =(List<Perfil>) _perfilRepository.GetAllAsync(filter:o=>o.Email==user.email , includes: inc).Result.ToList();
+                List<Perfil> v =(List<Perfil>) _perfilRepository.GetAllAsync(filter:o=>o.Email==user.email && o.Ativo==true , includes: inc).Result.ToList();
 
                 var selected =(Perfil) v.FirstOrDefault();
-                
+
+                var perfil = "";
+                if (selected.Consumidor.Count() > 0) perfil += "consumidor,";
+                if (selected.Vendedor.Count() > 0) perfil += "vendedor,";
+                if (selected.Fornecedor.Count() > 0) perfil += "fornecedor,";
+                perfil=perfil.TrimEnd(',');
 
                 try
                 {
                     selectedUser = new Domain.Dto.UsuarioDto();
-                    selectedUser.id = selected.IdPerfil;
+                    selectedUser.id = selected.IdPerfil;  //é pra ser o id do perfil, e não do consumidor. 
                     selectedUser.nome = selected.Nome;
                     selectedUser.email = selected.Email;
+                    selectedUser.perfil = perfil;
                     selectedUser.celular = selected.Fone;
                     selectedUser.senha = user.password;
                     selectedUser.foto = selected.Foto;

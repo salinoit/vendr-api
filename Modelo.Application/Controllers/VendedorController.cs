@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Vendr.Domain.Interfaces;
 using Vendr.Domain.Entities;
+using Vendr.Infra.CrossCutting.Extensions;
 
 namespace Vendr.Application.Controllers
 {
@@ -15,55 +16,56 @@ namespace Vendr.Application.Controllers
     [Route("api/[controller]")]
     public class VendedorController : Controller
     {
+        private readonly IService<Vendedor> _vendedorService;
 
-        private readonly IRepositoryAsync<Vendedor> _vendedorRepository;
-
-        public VendedorController(IRepositoryAsync<Vendedor> vendedorRepository)
+        public VendedorController(IService<Vendedor> vendedorRepository)
         {
-            _vendedorRepository = vendedorRepository;            
+            _vendedorService = vendedorRepository;            
         }
 
-        // GET Api/vendedor
+        // GET api/vendedor
         [HttpGet]
         public IEnumerable<Vendedor> Get()
-        {                       
-            return _vendedorRepository.GetAllAsync(includes:new string[] {"Consumidor"}).Result.Where(p=>p.Consumidor.Count>0).Take(10);
-        }
-
-        
-        [HttpGet("{email}")]
-        public IEnumerable<object> Get(string email)
         {
-            List<object> c = new List<object>()
-               {
-                   new { idVendedor=1,nome="teste" },
-                   new { idVendedor=2,nome="teste" },
-                   new { idVendedor=3,nome="teste" }
-               };
-
-            return c;
+            //PAGINAR-EXTENÇÃO-> .ToListPagedAsync(2, 5).Result;
+            return _vendedorService.GetAllAsync().Result;
         }
-        //return _vendedorRepository.GetAllAsync(includes: new string[] { "Consumidor" }).Result.Where(p => p.Consumidor.Count > 0).Take(10);
 
-    // GET Api/vendedor/5
-    [HttpGet("{id}")]
+        // GET api/vendedor/5
+        [HttpGet("{id}")]
         public async Task<IActionResult> Get([FromRoute] int id)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            var result = await _vendedorRepository.GetByIdAsync(id);
-
-            if (result == null)
+            var game = await _vendedorService.GetByIdAsync(id);            
+            if (game == null)
             {
                 return NotFound();
             }
-            return Ok(result);
+            return Ok(game);
+        }
+
+        // GET api/vendedor/sample@sample.com
+        [HttpGet("{email}")]
+        public async Task<IActionResult> Get([FromRoute] string email)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var list = await _vendedorService.GetAllAsync();
+            var game = list.FirstOrDefault();
+            if (game == null)
+            {
+                return NotFound();
+            }
+            return Ok(game);
         }
 
 
-        //PUT:api/vendedor/5
+        //PUT: api/vendedor/5
         [HttpPut("{id}")]
         public async Task<IActionResult> Put([FromRoute] int id, [FromBody] Vendedor vendedor)
         {
@@ -77,11 +79,11 @@ namespace Vendr.Application.Controllers
             }
             try
             {
-                 _vendedorRepository.Update(vendedor);
+                 await _vendedorService.UpdateAsync(vendedor);
             }
             catch (DbUpdateConcurrencyException ex)
             {
-                var result = await _vendedorRepository.GetByIdAsync(id);
+                var result = await _vendedorService.GetByIdAsync(id);
                 if (result == null)
                 {
                     return NotFound();
@@ -102,12 +104,11 @@ namespace Vendr.Application.Controllers
             {
                 return BadRequest(ModelState);
             }
-            _vendedorRepository.Add(vendedor);
+            await _vendedorService.AddAsync(vendedor);
             return CreatedAtAction("Get", new { id = vendedor.IdVendedor }, vendedor);
         }
 
-
-        //DEÇETE: api/vendedor/1
+        //DELETE: api/vendedor/1
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
@@ -115,14 +116,19 @@ namespace Vendr.Application.Controllers
             {
                 return BadRequest(ModelState);
             }
-            var result = await _vendedorRepository.GetByIdAsync(id);
+            var result = await _vendedorService.GetByIdAsync(id);
             if (result == null)
             {
                 return NotFound();
             }
-            await _vendedorRepository.DeleteAsync(id);
-
+            
+            await _vendedorService.DeleteAsync(id);
             return Ok(result);
+
         }
+
     }
+
 }
+
+

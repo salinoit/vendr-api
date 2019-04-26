@@ -8,14 +8,15 @@ using Microsoft.EntityFrameworkCore;
 using Vendr.Infra.Data.Context;
 using Vendr.Domain.Interfaces;
 using Vendr.Domain.Entities;
+using Vendr.Infra.CrossCutting.Extensions;
 
 namespace Vendr.Infra.Data.Repository
 {
-    public class BaseRepositoryAsync<TEntity> :  IRepositoryAsync<TEntity> where TEntity : BaseEntity
+    public class BaseRepository<TEntity> :  IRepositoryAsync<TEntity> where TEntity : BaseEntity
     {        
         private DBContext _context;
 
-        public BaseRepositoryAsync(DBContext context)
+        public BaseRepository(DBContext context)
         {
             _context = context;
         }

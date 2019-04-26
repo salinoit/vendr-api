@@ -13,11 +13,10 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Newtonsoft.Json.Serialization;
 using Vendr.Infra.CrossCutting.Identity.Configuration;
 
+using Vendr.Service.Services;
 using Vendr.Domain.Interfaces;
 using Vendr.Infra.Data.Repository;
 using Vendr.Domain.Entities;
-
-
 
 using AutoMapper;
 
@@ -40,22 +39,21 @@ namespace Vendr.Application
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            //CONFIG
             services.AddSingleton<IConfiguration>(Configuration);
 
-            services.AddScoped<IRepositoryAsync<Vendedor>, VendedorRepository>();
+            //SERVICES
+            services.AddScoped< IService<Vendedor>, VendedorService>();
 
+            //REPOSITORIES
+            services.AddScoped<IRepositoryAsync<Vendedor>, VendedorRepository>();
             services.AddScoped<IRepositoryAsync<Perfil>, PerfilRepository>();
 
+            //OTHERS
             services.AddDbContext<Vendr.Infra.Data.Context.DBContext>();
-
             services.AddSecurity(Configuration);
-
             services.AddAutoMapper();
 
-
-            //services.AddMvc();
-
-            
             services.AddCors(options =>
             {
                 options.AddPolicy("CorsPolicy", builder =>
@@ -85,17 +83,13 @@ namespace Vendr.Application
 
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-
             app.UseCors("MyPolicy");
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
-
             app.UseMvc();
         }
     }

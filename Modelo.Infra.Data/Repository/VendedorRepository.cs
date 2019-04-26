@@ -6,7 +6,7 @@ using Vendr.Infra.Data.Context;
 using Vendr.Domain.Interfaces;
 namespace Vendr.Infra.Data.Repository
 {
-    public class VendedorRepository : BaseRepositoryAsync<Vendedor>
+    public class VendedorRepository : BaseRepository<Vendedor>
     {
         public VendedorRepository(DBContext context)
             : base(context)

@@ -6,7 +6,7 @@ using Vendr.Infra.Data.Context;
 using Vendr.Domain.Interfaces;
 namespace Vendr.Infra.Data.Repository
 {
-    public class PerfilRepository : BaseRepositoryAsync<Perfil>
+    public class PerfilRepository : BaseRepository<Perfil>
     {
         public PerfilRepository(DBContext context)
             : base(context)

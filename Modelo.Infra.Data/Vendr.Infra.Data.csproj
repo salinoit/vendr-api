@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Modelo.Domain\Vendr.Domain.csproj" />
+    <ProjectReference Include="..\Modelo.Infra.CrossCutting\Vendr.Infra.CrossCutting.csproj" />
   </ItemGroup>
 
   <ItemGroup>
