@@ -26,7 +26,7 @@ namespace Vendr.Application.Controllers
             _mapper = mapper;
         }
 
-        // GET api/ProdutoServico
+        // GET api/Produto
         [HttpGet]
         public IEnumerable<ProdutoDto> Get()
         {
@@ -34,7 +34,27 @@ namespace Vendr.Application.Controllers
             return _mapper.Map<IEnumerable<ProdutoDto>>(list);
         }
 
-        // GET api/ProdutoServico/5
+
+        [HttpGet("paged/{page}/{size}")]
+        public IActionResult paged([FromRoute] int page,int size)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var list = _ProdutoServicoService.GetAllAsync();
+            List<ProdutoDto> retorno = _mapper.Map<List<ProdutoDto>>(list.Result);
+
+            var ret = new
+            {
+                total = list.Result.Count(),
+                items = retorno.Where(p=>p.IdProdutoServico!=60).Skip(((page - 1) * size)).Take(size)
+            };
+            
+            return Ok(ret);
+        }
+
+        // GET api/Produto/5
         [HttpGet("{id}")]
         public async Task<IActionResult> Get([FromRoute] int id)
         {
@@ -50,9 +70,9 @@ namespace Vendr.Application.Controllers
                 return NotFound();
             }
             return Ok(tDto);
-        }        
+        }
 
-        //PUT: api/ProdutoServico/5
+        //PUT: api/Produto/5
         [HttpPut("{id}")]
         public async Task<IActionResult> Put([FromRoute] int id, [FromBody] ProdutoServico ProdutoServico)
         {
@@ -83,7 +103,7 @@ namespace Vendr.Application.Controllers
             return NoContent();
         }
 
-        //POST: api/ProdutoServico
+        //POST: api/Produto
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] ProdutoServico ProdutoServico)
         {
@@ -95,7 +115,7 @@ namespace Vendr.Application.Controllers
             return CreatedAtAction("Get", new { id = ProdutoServico.IdProdutoServico }, ProdutoServico);
         }
 
-        //DELETE: api/ProdutoServico/1
+        //DELETE: api/Produto/1
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {

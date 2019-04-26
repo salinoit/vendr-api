@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
@@ -30,7 +31,7 @@ namespace Vendr.Infra.CrossCutting.Extensions
 
             var skip = (page - 1) * quantity;
 
-            var list = items.Skip(skip).Take(quantity).ToList<T>();
+            var list = await items.Skip(skip).Take(quantity).AsQueryable().ToListAsync<T>();
 
             return list;
         }
