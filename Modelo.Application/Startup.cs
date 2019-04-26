@@ -44,9 +44,11 @@ namespace Vendr.Application
 
             //SERVICES
             services.AddScoped< IService<Vendedor>, VendedorService>();
+            services.AddScoped<IService<ProdutoServico>, ProdutoService>();
 
             //REPOSITORIES
             services.AddScoped<IRepositoryAsync<Vendedor>, VendedorRepository>();
+            services.AddScoped<IRepositoryAsync<ProdutoServico>, ProdutoRepository>();
             services.AddScoped<IRepositoryAsync<Perfil>, PerfilRepository>();
 
             //OTHERS

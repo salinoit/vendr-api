@@ -21,7 +21,7 @@ namespace Vendr.Infra.Data.Repository
             _context = context;
         }
 
-        public IQueryable<TEntity> GetQueryable(Expression<Func<TEntity, bool>> filter = null, string[] includes = null)
+        public IQueryable<TEntity> GetQueryable(Expression<Func<TEntity, bool>> filter = null, string[] includes = null, int? limit=null)
         {
             var query = _context.Set<TEntity>().AsQueryable();
 
@@ -29,13 +29,26 @@ namespace Vendr.Infra.Data.Repository
                 query = query.Where(filter);
 
             includes?.ToList().ForEach(navigation => query = query.Include(navigation));
-
-            return query;
+            if (limit != null)
+            {
+                if (limit > 0)
+                {
+                    return query.Take((int)limit);
+                }
+                else
+                {
+                    throw new Exception("limite de valor deve ser positivo.");
+                }
+            }
+            else
+            {
+                return query;
+            }
         }
 
-        public async Task<IEnumerable<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>> filter = null, string[] includes = null)
+        public async Task<IEnumerable<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>> filter = null, string[] includes = null, int? limit = null)
         {
-            var query = GetQueryable(filter, includes);
+            var query = GetQueryable(filter, includes, limit);
 
             return await query.ToListAsync();
         }
