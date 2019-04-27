@@ -19,11 +19,14 @@ namespace Vendr.Application.Controllers
     public class ProdutoController : Controller
     {
         private readonly IService<ProdutoServico> _ProdutoServicoService;
+        private readonly IProdutoDapper _produtoDapperRepository;
         private readonly IMapper _mapper;
-        public ProdutoController(IService<ProdutoServico> ProdutoServicoService, IMapper mapper)
+
+        public ProdutoController(IService<ProdutoServico> ProdutoServicoService, IMapper mapper, IProdutoDapper produtoDapperRepository)
         {
             _ProdutoServicoService = ProdutoServicoService;
             _mapper = mapper;
+            _produtoDapperRepository = produtoDapperRepository;
         }
 
         // GET api/Produto
@@ -34,21 +37,19 @@ namespace Vendr.Application.Controllers
             return _mapper.Map<IEnumerable<ProdutoDto>>(list);
         }
 
-
         [HttpGet("paged/{page}/{size}")]
-        public IActionResult paged([FromRoute] int page,int size)
+        public IActionResult paged([FromRoute] int page,int size,[FromQuery] string search)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
-            }
-            var list = _ProdutoServicoService.GetAllAsync();
-            List<ProdutoDto> retorno = _mapper.Map<List<ProdutoDto>>(list.Result);
+            }        
 
+            var pack = _produtoDapperRepository.SelectPagedAs(page, size, search);
             var ret = new
             {
-                total = list.Result.Count(),
-                items = retorno.Where(p=>p.IdProdutoServico!=60).Skip(((page - 1) * size)).Take(size)
+                total = pack.total,
+                items = pack.items
             };
             
             return Ok(ret);

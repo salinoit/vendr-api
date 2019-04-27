@@ -16,8 +16,9 @@ using Vendr.Infra.CrossCutting.Identity.Configuration;
 using Vendr.Service.Services;
 using Vendr.Domain.Interfaces;
 using Vendr.Infra.Data.Repository;
+using Vendr.Infra.Data.Dapper;
 using Vendr.Domain.Entities;
-
+using Vendr.Domain.Dto;
 using AutoMapper;
 
 
@@ -51,9 +52,15 @@ namespace Vendr.Application
             services.AddScoped<IRepositoryAsync<ProdutoServico>, ProdutoRepository>();
             services.AddScoped<IRepositoryAsync<Perfil>, PerfilRepository>();
 
+            //DAPPER
+            services.AddScoped<IProdutoDapper, ProdutoDapper>();
+
             //OTHERS
             services.AddDbContext<Vendr.Infra.Data.Context.DBContext>();
             services.AddSecurity(Configuration);
+
+            AutoMapper.Mapper.Initialize(cfg => cfg.AddProfile<Vendr.Infra.Data.Dapper.ProdutoDapper.AutoMapperProfile>());
+
             services.AddAutoMapper();
 
             services.AddCors(options =>
