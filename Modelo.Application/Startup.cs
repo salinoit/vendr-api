@@ -54,6 +54,7 @@ namespace Vendr.Application
 
             //DAPPER
             services.AddScoped<IProdutoDapper, ProdutoDapper>();
+            services.AddScoped<IRepository<ProdutoDto>, ProdutoDapper>();
 
             //OTHERS
             services.AddDbContext<Vendr.Infra.Data.Context.DBContext>();

@@ -34,6 +34,10 @@ namespace Vendr.Infra.Data.Dapper
                         opt => opt.MapFrom(src => src.tipo)
                     )
                      .ForMember(
+                        dest => dest.ImagemProduto,
+                        opt => opt.MapFrom(src => src.imagem_produto)
+                    )
+                     .ForMember(
                         dest => dest.PrecoVenda,
                         opt => opt.MapFrom(src => src.preco_venda)
                     );
@@ -65,7 +69,8 @@ namespace Vendr.Infra.Data.Dapper
             using (SqlConnection con = new SqlConnection(
              _config.GetConnectionString("DefaultConnection")))
             {
-                var obj = con.QueryFirst<object>(@"SELECT * FROM vendr.produtoservico WHERE id_produtoservico=@id", new { id=id});
+                var obj = con.QueryFirst<object>(@"SELECT * FROM vendr.produto_servico WHERE id_produto_servico=@id", new { id=id});
+
                 return obj;
             };
         }
@@ -83,8 +88,16 @@ namespace Vendr.Infra.Data.Dapper
 
         public ProdutoDto SelectAs(int id)
         {
-            var t = Select(id);
-            return _mapper.Map<ProdutoDto>(t);
+            try
+            {
+                var t = Select(id);
+                var before = _mapper.Map<ProdutoDtoDapper>(t);
+                return _mapper.Map<ProdutoDto>(before);
+            }
+            catch(Exception ex)
+            {
+                return null;
+            }
         }
 
         public IList<ProdutoDto> ListAs()
@@ -99,7 +112,16 @@ namespace Vendr.Infra.Data.Dapper
             throw new NotImplementedException();
         }
 
-        public ProdutoDapperPaged SelectPagedAs(int page,int size, string search)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="page">Página de visualização</param>
+        /// <param name="size">Tamanho da página</param>
+        /// <param name="search">Opcional: barra de pesquisa - string</param>
+        /// <param name="order">Padrão=0 - Preço menor para o maior</param>
+        /// <param name="exibitionType">Padrao=0 (ordem de cadastro), 1 novos itens, 2 mais vendidos, 3 ja comprados, 4 favoritos</param>
+        /// <returns></returns>
+        public ProdutoDapperPaged SelectPagedAs(int page,int size, string search, int order = 0, int exibitionType = 0)
         {
             string clausure = " WHERE 1=1 ";
             string searchTherm = "";
@@ -108,7 +130,18 @@ namespace Vendr.Infra.Data.Dapper
                 searchTherm = " AND descricao LIKE '%" + search + "%'";
                 clausure += searchTherm;
             }
-            
+
+            string sort = "(SELECT NULL)"; //pra nao permitir ordem, mas tem que ter isso por causa do fetch next
+
+            //if (order==0)
+            //{
+            //    sort = "preco_venda";
+            //}
+            //else if (order==1)
+            //{
+            //    sort = "preco_venda desc";
+            //}
+
 
             int skip = ((page - 1) * size);
             ProdutoDapperPaged tmp = new ProdutoDapperPaged();
@@ -118,7 +151,7 @@ namespace Vendr.Infra.Data.Dapper
             {
 
                 var qtd = con.ExecuteScalar(@"SELECT COUNT(*) AS TOTAL FROM vendr.produto_servico " + clausure);
-                var list = con.Query<object>(@"SELECT  * FROM vendr.produto_servico " + clausure + " ORDER BY (SELECT NULL) OFFSET " + skip.ToString() + " ROWS FETCH NEXT " + size.ToString() + " ROWS ONLY");
+                var list = con.Query<object>(@"SELECT  * FROM vendr.produto_servico " + clausure + " ORDER BY " + sort + " OFFSET " + skip.ToString() + " ROWS FETCH NEXT " + size.ToString() + " ROWS ONLY");
                 tmp.total = Convert.ToInt32(qtd);
 
                 var before= _mapper.Map<IList<ProdutoDtoDapper>>(list);

@@ -13,6 +13,6 @@ namespace Vendr.Domain.Interfaces
 
     public interface IProdutoDapper
     {
-        ProdutoDapperPaged SelectPagedAs(int page, int size, string search);
+        ProdutoDapperPaged SelectPagedAs(int page, int size, string search, int order=0,int exibitionType=0);
     }
 }
