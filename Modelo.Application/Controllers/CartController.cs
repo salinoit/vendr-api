@@ -35,20 +35,24 @@ namespace Vendr.Application.Controllers
         {
             bool have = false;
 
-            if (cq.novo.qtd <= 0) return BadRequest(cq);
-
             CartDto cart = new CartDto();
             foreach (CartQueryItemDto c in cq.existentes)
             {
-                if (c.id==cq.novo.id)
+                if (cq.novo!=null)
                 {
-                    have = true;
-                    c.qtd += cq.novo.qtd;
+                    if (c.id == cq.novo.id)
+                    {
+                        have = true;
+                        c.qtd += cq.novo.qtd;
+                    }
                 }
             }
-            if (have==false)
+            if (cq.novo != null)
             {
-                cq.existentes.Append(cq.novo);
+                if (have == false)
+                {
+                    cq.existentes.Add(cq.novo);
+                }
             }
 
             cart.total = 0;

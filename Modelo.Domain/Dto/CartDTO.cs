@@ -25,7 +25,7 @@ namespace Vendr.Domain.Dto
 
     public class CartQueryDto
     {
-        public IEnumerable<CartQueryItemDto> existentes { get; set; }
+        public List<CartQueryItemDto> existentes { get; set; }
         public CartQueryItemDto novo { get; set; }
     }
 
