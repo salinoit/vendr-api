@@ -52,21 +52,21 @@ namespace Vendr.Application.Controllers
         }
 
         // GET api/vendedor/sample@sample.com
-        [HttpGet("{email}")]
-        public async Task<IActionResult> Get([FromRoute] string email)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            var list = await _vendedorService.GetAllAsync();
-            var t = list.FirstOrDefault();
-            if (t == null)
-            {
-                return NotFound();
-            }
-            return Ok(t);
-        }
+        //[HttpGet("{email}")]
+        //public async Task<IActionResult> Get([FromRoute] string email)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ModelState);
+        //    }
+        //    var list = await _vendedorService.GetAllAsync();
+        //    var t = list.FirstOrDefault();
+        //    if (t == null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    return Ok(t);
+        //}
 
 
         //PUT: api/vendedor/5

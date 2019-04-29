@@ -40,7 +40,7 @@ namespace Vendr.Infra.Data.Dapper
             using (SqlConnection con = new SqlConnection(
              _config.GetConnectionString("DefaultConnection")))
             {
-                var obj = con.QueryFirst<object>(@"SELECT V.id_vendedor,P.nome, P.email,P.foto V.id_perfil FROM vendr.vendedor V inner join vendr.perfil P on V.id_perfil=P.id_perfil  WHERE V.id_vendedor=@id", new { id=id});
+                var obj = con.QueryFirst<object>(@"SELECT V.id_vendedor,P.nome, P.email,P.foto, V.id_perfil FROM vendr.vendedor V inner join vendr.perfil P on V.id_perfil=P.id_perfil  WHERE V.id_vendedor=@id", new { id=id});
 
                 return obj;
             };
