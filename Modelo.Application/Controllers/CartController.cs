@@ -60,7 +60,7 @@ namespace Vendr.Application.Controllers
             foreach (CartQueryItemDto c in cq.existentes)
             {
 
-                var p = _produtoDapperRepository.SelectAs(c.id);                
+                var p = _produtoDapperRepository.SelectAs(c.id);
                 if (p!=null)
                 {
                     CartItemDto i = new CartItemDto();

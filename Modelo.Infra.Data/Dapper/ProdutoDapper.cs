@@ -121,13 +121,18 @@ namespace Vendr.Infra.Data.Dapper
         /// <param name="order">Padrão=0 - Preço menor para o maior</param>
         /// <param name="exibitionType">Padrao=0 (ordem de cadastro), 1 novos itens, 2 mais vendidos, 3 ja comprados, 4 favoritos</param>
         /// <returns></returns>
-        public ProdutoDapperPaged SelectPagedAs(int page,int size, string search, int order = 0, int exibitionType = 0)
+        public ProdutoDapperPaged SelectPagedAs(int page,int size, string search, int order = 0, int exibitionType = 0, int vendedor=0)
         {
             string clausure = " WHERE 1=1 ";
             string searchTherm = "";
             if (!string.IsNullOrEmpty(search))
             {
                 searchTherm = " AND descricao LIKE '%" + search + "%'";
+                clausure += searchTherm;
+            }
+            if (vendedor>0)
+            {
+                searchTherm = " AND id_vendedor=" + vendedor.ToString(); 
                 clausure += searchTherm;
             }
 

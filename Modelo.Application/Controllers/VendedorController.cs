@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Vendr.Domain.Interfaces;
 using Vendr.Domain.Entities;
+using Vendr.Domain.Dto;
 using Vendr.Infra.CrossCutting.Extensions;
 
 namespace Vendr.Application.Controllers
@@ -18,27 +19,31 @@ namespace Vendr.Application.Controllers
     {
         private readonly IService<Vendedor> _vendedorService;
 
-        public VendedorController(IService<Vendedor> vendedorRepository)
+        private readonly IRepository<VendedorDto> _vendedorDapper;
+
+        public VendedorController(IService<Vendedor> vendedorRepository, IRepository<VendedorDto> vendedorDapper)
         {
-            _vendedorService = vendedorRepository;            
+            _vendedorService = vendedorRepository;
+            _vendedorDapper = vendedorDapper;
         }
 
         // GET api/vendedor
         [HttpGet]
-        public IEnumerable<Vendedor> Get()
-        {            
-            return _vendedorService.GetAllAsync().Result;
+        public IEnumerable<VendedorDto> Get()
+        {
+            return _vendedorDapper.ListAs();
         }
 
         // GET api/vendedor/5
         [HttpGet("{id}")]
-        public async Task<IActionResult> Get([FromRoute] int id)
+        public IActionResult Get([FromRoute] int id)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            var t = await _vendedorService.GetByIdAsync(id);            
+            var t = _vendedorDapper.SelectAs(id);            
+
             if (t == null)
             {
                 return NotFound();

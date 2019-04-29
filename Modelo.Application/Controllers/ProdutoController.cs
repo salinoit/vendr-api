@@ -38,14 +38,14 @@ namespace Vendr.Application.Controllers
         }
 
         [HttpGet("paged/{page}/{size}")]
-        public IActionResult paged([FromRoute] int page,int size,[FromQuery] string search)
+        public IActionResult paged([FromRoute] int page,int size,[FromQuery] string search, [FromQuery] int vendedor)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }        
 
-            var pack = _produtoDapperRepository.SelectPagedAs(page, size, search);
+            var pack = _produtoDapperRepository.SelectPagedAs(page, size, search,0,0,vendedor);
             var ret = new
             {
                 total = pack.total,
