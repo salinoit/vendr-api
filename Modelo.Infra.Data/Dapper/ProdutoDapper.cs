@@ -123,42 +123,22 @@ namespace Vendr.Infra.Data.Dapper
         /// <returns></returns>
         public ProdutoDapperPaged SelectPagedAs(int page,int size, string search, int order = 0, int exibitionType = 0, int vendedor=0)
         {
-            string clausure = " WHERE 1=1 ";
-            string searchTherm = "";
-            if (!string.IsNullOrEmpty(search))
-            {
-                searchTherm = " AND descricao LIKE '%" + search + "%'";
-                clausure += searchTherm;
-            }
-            if (vendedor>0)
-            {
-                searchTherm = " AND id_vendedor=" + vendedor.ToString(); 
-                clausure += searchTherm;
-            }
-
-            string sort = "(SELECT NULL)"; //pra nao permitir ordem, mas tem que ter isso por causa do fetch next
-
-            //if (order==0)
-            //{
-            //    sort = "preco_venda";
-            //}
-            //else if (order==1)
-            //{
-            //    sort = "preco_venda desc";
-            //}
-
-
-            int skip = ((page - 1) * size);
+                       
             ProdutoDapperPaged tmp = new ProdutoDapperPaged();
 
             using (SqlConnection con = new SqlConnection(
              _config.GetConnectionString("DefaultConnection")))
             {
-
-                var qtd = con.ExecuteScalar(@"SELECT COUNT(*) AS TOTAL FROM vendr.produto_servico " + clausure);
-                var list = con.Query<object>(@"SELECT  * FROM vendr.produto_servico " + clausure + " ORDER BY " + sort + " OFFSET " + skip.ToString() + " ROWS FETCH NEXT " + size.ToString() + " ROWS ONLY");
-                tmp.total = Convert.ToInt32(qtd);
-
+                
+                var p = new DynamicParameters();
+                p.Add("PAGINA", page.ToString());
+                p.Add("TAMANHO", size.ToString());
+                p.Add("SEARCH", search);
+                p.Add("VENDEDOR", vendedor.ToString());
+                p.Add("MYCOUNT", dbType: DbType.Int32, direction: ParameterDirection.Output);
+                //p.Add("c", dbType: DbType.Int32, direction: ParameterDirection.ReturnValue);                
+                var list = con.Query<object>(@"Vendr.PesquisaProdutos",p, commandType: CommandType.StoredProcedure);
+                tmp.total = Convert.ToInt32(p.Get<int>("COUNTER"));
                 var before= _mapper.Map<IList<ProdutoDtoDapper>>(list);
                 tmp.items= _mapper.Map<IList<ProdutoDto>>(before);
             };
