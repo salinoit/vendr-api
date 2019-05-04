@@ -6,7 +6,7 @@ using System.Security.Claims;
 using System.Security.Principal;
 using Microsoft.IdentityModel.Tokens;
 using Vendr.Infra.CrossCutting.Identity.Models;
-using Vendr.Domain.Entities;
+using Vendr.Domain.Dto;
 using Vendr.Domain.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,9 +23,9 @@ namespace Vendr.Application.Controllers
            [FromBody]UserIdentity user,
            [FromServices]SigningConfigurations signingConfigurations,
            [FromServices]TokenConfigurations tokenConfigurations,
-           [FromServices]IRepositoryAsync<Perfil> _perfilRepository)
+           [FromServices]IRepository<UsuarioDto> _perfilRepository)
 
-        {
+            {
             bool credenciaisValidas = false;
            
             Vendr.Domain.Dto.UsuarioDto selectedUser = null;
@@ -33,41 +33,22 @@ namespace Vendr.Application.Controllers
 
             if (user != null && !String.IsNullOrWhiteSpace(user.email) )
             {
-                string[] inc = {"Vendedor","Consumidor","Fornecedor" };
+                                
+                var selected = _perfilRepository.ListAs().Where(p => p.email == user.email && p.senha == user.password).FirstOrDefault();                                
 
-                //williamzz@ig.com.br
-                List<Perfil> v =(List<Perfil>) _perfilRepository.GetAllAsync(filter:o=>o.Email==user.email && o.Ativo==true , includes: inc).Result.ToList();
-
-                var selected =(Perfil) v.FirstOrDefault();
-
-                var perfil = "";
-                if (selected.Consumidor.Count() > 0) perfil += "consumidor,";
-                if (selected.Vendedor.Count() > 0) perfil += "vendedor,";
-                if (selected.Fornecedor.Count() > 0) perfil += "fornecedor,";
-                perfil=perfil.TrimEnd(',');
-
-                try
+                if (selected!=null)
                 {
-                    selectedUser = new Domain.Dto.UsuarioDto();
-                    selectedUser.id = selected.IdPerfil;  //é pra ser o id do perfil, e não do consumidor. 
-                    selectedUser.nome = selected.Nome;
-                    selectedUser.email = selected.Email;
-                    selectedUser.perfil = perfil;
-                    selectedUser.celular = selected.Fone;
-                    selectedUser.senha = user.password;
-                    selectedUser.foto = selected.Foto;
                     credenciaisValidas = true;
+                    selectedUser = selected;
                 }
-                catch(Exception ex)
+                else
                 {
                     credenciaisValidas = false;
-                }                               
+                }
             }
 
             if (credenciaisValidas)
-            {
-
-                
+            {                
                 ClaimsIdentity identity = new ClaimsIdentity(
                     new GenericIdentity(user.email, "Login"),
                     new[] {

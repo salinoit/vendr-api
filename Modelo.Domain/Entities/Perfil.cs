@@ -15,6 +15,7 @@ namespace Vendr.Domain.Entities
         public int IdPerfil { get; set; }
         public string Foto { get; set; }
         public string Nome { get; set; }
+        public string Senha { get; set; }
         public string Email { get; set; }
         public string CpfCnpj { get; set; }
         public string Fone { get; set; }

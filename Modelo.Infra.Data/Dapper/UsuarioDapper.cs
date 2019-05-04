@@ -37,23 +37,19 @@ namespace Vendr.Infra.Data.Dapper
 
         public object Select(int id)
         {
-            using (SqlConnection con = new SqlConnection(
-             _config.GetConnectionString("DefaultConnection")))
-            {
-                var obj = con.QueryFirst<object>(@"SELECT * FROM vendr.usuario WHERE id_usuario=@idusuario", new { idusuario=id});
-                return obj;
-            };
+            return ListAs().Where(p => p.id_usuario == id);
         }
 
         public IList<object> List()
         {
             using (SqlConnection con = new SqlConnection(
-             _config.GetConnectionString("DefaultConnection")))
+              _config.GetConnectionString("DefaultConnection")))
             {
-                var list = con.Query<object>(@"SELECT TOP 100 * FROM vendr.usuario ");
-                return list.AsList();
-            };
+                            
+                var list = con.Query<object>(@"Vendr.lista_usuarios_consumidores", commandType: CommandType.StoredProcedure);
+                return list.ToList();
 
+            };
         }
 
         public UsuarioDto SelectAs(int id)
@@ -69,9 +65,25 @@ namespace Vendr.Infra.Data.Dapper
             
         }
 
-        public void Update(UsuarioDto obj)
+        public  void Update(UsuarioDto obj)
         {
-            throw new NotImplementedException();
+            using (SqlConnection con = new SqlConnection(
+            _config.GetConnectionString("DefaultConnection")))
+            {
+                var p = new DynamicParameters();
+                p.Add("ID_USUARIO", obj.id_usuario.ToString());
+                p.Add("ID_PERFIL", obj.id_perfil.ToString());
+                p.Add("NOME", obj.nome.ToString());
+                p.Add("FONE", obj.fone.ToString());
+                p.Add("SENHA", obj.senha.ToString());
+
+                //p.Add("TYPE", exibitionType.ToString());
+                //p.Add("SEARCH", search == null ? "" : search);
+                //p.Add("VENDEDOR", vendedor.ToString());
+                //p.Add("MYCOUNT", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+                var result = con.Query<object>(@"Vendr.atualiza_usuario_consumidor", p, commandType: CommandType.StoredProcedure);
+            };
         }
     }
 }
