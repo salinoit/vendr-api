@@ -32,7 +32,24 @@ namespace Vendr.Infra.Data.Dapper
 
         public void Insert(UsuarioDto obj)
         {
-            throw new NotImplementedException();
+            using (SqlConnection con = new SqlConnection(
+          _config.GetConnectionString("DefaultConnection")))
+            {
+                var p = new DynamicParameters();
+                p.Add("EMAIL", obj.email.ToString());
+                p.Add("SENHA", obj.senha.ToString());
+                p.Add("NOME", obj.nome.ToString());
+                p.Add("FONE", obj.fone.ToString());
+                p.Add("MSG", dbType: DbType.String, direction: ParameterDirection.Output);
+
+                var result = con.Query<object>(@"Vendr.criar_usuario_consumidor", p, commandType: CommandType.StoredProcedure);
+                var ret = Convert.ToString(p.Get<string>("MSG"));
+
+                if  (ret=="EXIST")
+                {
+                    throw new Exception("Usuário já cadastrado!");
+                }
+            };
         }
 
         public object Select(int id)
@@ -76,7 +93,7 @@ namespace Vendr.Infra.Data.Dapper
                 p.Add("NOME", obj.nome.ToString());
                 p.Add("FONE", obj.fone.ToString());
                 p.Add("SENHA", obj.senha.ToString());
-
+                p.Add("FOTO", obj.foto.ToString());
                 //p.Add("TYPE", exibitionType.ToString());
                 //p.Add("SEARCH", search == null ? "" : search);
                 //p.Add("VENDEDOR", vendedor.ToString());

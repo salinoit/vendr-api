@@ -50,6 +50,26 @@ namespace Vendr.Application.Controllers
                 return NoContent();
             }            
         }
+
+
+        //PUT: api/usuario/5
+        [HttpPost]
+        public IActionResult Post([FromBody] UsuarioDto usuarioPerfil)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                _usuarioRepository.Insert(usuarioPerfil);
+                return Ok("OK");
+            }
+            catch (Exception e)
+            {
+                return Ok("Usuário já cadastrado!");
+            }
+        }
     }
 
 }
