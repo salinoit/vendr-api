@@ -40,9 +40,18 @@ namespace Vendr.Infra.Data.Dapper
                 p.Add("SENHA", obj.senha.ToString());
                 p.Add("NOME", obj.nome.ToString());
                 p.Add("FONE", obj.fone.ToString());
-                p.Add("MSG", dbType: DbType.String, direction: ParameterDirection.Output);
 
-                var result = con.Query<object>(@"Vendr.criar_usuario_consumidor", p, commandType: CommandType.StoredProcedure);
+                p.Add("MSG","", dbType: DbType.String, direction: ParameterDirection.Output,size:50);
+
+                try
+                {
+                    con.Execute(@"Vendr.criar_usuario_consumidor", p, commandType: CommandType.StoredProcedure);
+                }
+                catch(Exception po)
+                {
+                    var err = po.Message;
+                }
+
                 var ret = Convert.ToString(p.Get<string>("MSG"));
 
                 if  (ret=="EXIST")
