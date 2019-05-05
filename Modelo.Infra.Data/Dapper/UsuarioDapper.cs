@@ -102,7 +102,11 @@ namespace Vendr.Infra.Data.Dapper
                 p.Add("NOME", obj.nome.ToString());
                 p.Add("FONE", obj.fone.ToString());
                 p.Add("SENHA", obj.senha.ToString());
-                p.Add("FOTO", obj.foto.ToString());
+                if (!string.IsNullOrEmpty(obj.foto))
+                {
+                    p.Add("FOTO", obj.foto.ToString());
+                }
+
                 //p.Add("TYPE", exibitionType.ToString());
                 //p.Add("SEARCH", search == null ? "" : search);
                 //p.Add("VENDEDOR", vendedor.ToString());
