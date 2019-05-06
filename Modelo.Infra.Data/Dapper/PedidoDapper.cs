@@ -13,13 +13,13 @@ using AutoMapper;
 
 namespace Vendr.Infra.Data.Dapper
 {
-    public class UsuarioDapper : IRepository<UsuarioDto>
+    public class PedidoDapper : IRepository<PedidoDTO>
     {
 
         private readonly IConfiguration _config;
         private readonly IMapper _mapper;
 
-        public UsuarioDapper([FromServices]IConfiguration configuration, [FromServices]IMapper mapper)
+        public PedidoDapper([FromServices]IConfiguration configuration, [FromServices]IMapper mapper)
         {
             _config = configuration;
             _mapper = mapper;
@@ -30,18 +30,15 @@ namespace Vendr.Infra.Data.Dapper
             throw new NotImplementedException();
         }
 
-        public void Insert(UsuarioDto obj)
+        public void Insert(PedidoDTO obj)
         {
             using (SqlConnection con = new SqlConnection(
           _config.GetConnectionString("DefaultConnection")))
             {
                 var p = new DynamicParameters();
-                p.Add("EMAIL", obj.email.ToString());
-                p.Add("SENHA", obj.senha.ToString());
-                p.Add("NOME", obj.nome.ToString());
-                p.Add("FONE", obj.fone.ToString());
+                p.Add("EMAIL", obj.id_consumidor.ToString());              
 
-                p.Add("MSG","", dbType: DbType.String, direction: ParameterDirection.Output,size:50);
+              //  p.Add("MSG","", dbType: DbType.String, direction: ParameterDirection.Output,size:50);
 
                 try
                 {
@@ -63,7 +60,7 @@ namespace Vendr.Infra.Data.Dapper
 
         public object Select(int id)
         {
-            return ListAs().Where(p => p.id_usuario == id);
+            return ListAs().Where(p => p.id_pedido == id);
         }
 
         public IList<object> List()
@@ -71,43 +68,31 @@ namespace Vendr.Infra.Data.Dapper
             using (SqlConnection con = new SqlConnection(
               _config.GetConnectionString("DefaultConnection")))
             {
-                            
-                var list = con.Query<object>(@"Vendr.lista_usuarios_consumidores", commandType: CommandType.StoredProcedure);
+                var p = new DynamicParameters();
+                p.Add("ID_CONSUMIDOR", "0");
+
+                var list = con.Query<object>(@"Vendr.web_pedidos",p, commandType: CommandType.StoredProcedure);
                 return list.ToList();
 
             };
         }
 
-        public UsuarioDto SelectAs(int id)
+        public PedidoDTO SelectAs(int id)
         {
             var t = Select(id);
-            return _mapper.Map<UsuarioDto>(t);
+            return _mapper.Map<PedidoDTO>(t);
         }
 
-        public IList<UsuarioDto> ListAs()
+        public IList<PedidoDTO> ListAs()
         {
             var list = List();
-            return _mapper.Map<IList<UsuarioDto>>(list);
+            return _mapper.Map<IList<PedidoDTO>>(list);
             
         }
 
-        public  void Update(UsuarioDto obj)
+        public  void Update(PedidoDTO obj)
         {
-            using (SqlConnection con = new SqlConnection(
-            _config.GetConnectionString("DefaultConnection")))
-            {
-                var p = new DynamicParameters();
-                p.Add("ID_USUARIO", obj.id_usuario.ToString());
-                p.Add("ID_PERFIL", obj.id_perfil.ToString());
-                p.Add("NOME", obj.nome.ToString());
-                p.Add("FONE", obj.fone.ToString());
-                p.Add("SENHA", obj.senha.ToString());
-                if (!string.IsNullOrEmpty(obj.foto))
-                {
-                    p.Add("FOTO", obj.foto.ToString());
-                }
-                var result = con.Query<object>(@"Vendr.atualiza_usuario_consumidor", p, commandType: CommandType.StoredProcedure);
-            };
+            
         }
     }
 }

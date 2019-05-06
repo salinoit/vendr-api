@@ -46,6 +46,7 @@ namespace Vendr.Application
             //SERVICES
             services.AddScoped< IService<Vendedor>, VendedorService>();
             services.AddScoped<IService<ProdutoServico>, ProdutoService>();
+            
 
             //REPOSITORIES
             services.AddScoped<IRepositoryAsync<Vendedor>, VendedorRepository>();
@@ -56,7 +57,11 @@ namespace Vendr.Application
             services.AddScoped<IProdutoDapper, ProdutoDapper>();
             services.AddScoped<IRepository<ProdutoDto>, ProdutoDapper>();
             services.AddScoped<IRepository<UsuarioDto>, UsuarioDapper>();
+            services.AddScoped<IRepository<PedidoDTO>, PedidoDapper>();
+            services.AddScoped<IPedidoItemDApper, PedidoItemDapper>();
+            services.AddScoped<IRepository<PedidoItemDTO>, PedidoItemDapper>();
             services.AddScoped<IRepository<VendedorDto>, VendedorDapper>();
+            
 
             //OTHERS
             services.AddDbContext<Vendr.Infra.Data.Context.DBContext>();
