@@ -107,10 +107,6 @@ namespace Vendr.Infra.Data.Dapper
                     p.Add("FOTO", obj.foto.ToString());
                 }
 
-                //p.Add("TYPE", exibitionType.ToString());
-                //p.Add("SEARCH", search == null ? "" : search);
-                //p.Add("VENDEDOR", vendedor.ToString());
-                //p.Add("MYCOUNT", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
                 var result = con.Query<object>(@"Vendr.atualiza_usuario_consumidor", p, commandType: CommandType.StoredProcedure);
             };

@@ -20,18 +20,5 @@ namespace Vendr.Domain.Dto
         public int qtd { get; set; }
         public ProdutoDto produto { get; set; }
     }
-
-
-
-    public class CartQueryDto
-    {
-        public List<CartQueryItemDto> existentes { get; set; }
-        public CartQueryItemDto novo { get; set; }
-    }
-
-    public class CartQueryItemDto
-    {
-        public int id { get; set; }
-        public int qtd { get; set; }
-    }
+   
 }

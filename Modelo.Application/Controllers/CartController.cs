@@ -31,36 +31,39 @@ namespace Vendr.Application.Controllers
 
         // GET api/cart
         [HttpPost]
-        public IActionResult Get([FromBody]CartQueryDto cq)
-        {
-            bool have = false;
+        public IActionResult Get([FromBody]CartDto cq)
+        {            
+
+            Dictionary<int, CartItemDto> _items = new Dictionary<int, CartItemDto>();            
+
+            foreach (CartItemDto c in cq.items)
+            {
+
+                CartItemDto _i = null;
+
+                _items.TryGetValue(c.produto.IdProdutoServico, out  _i);
+
+                if (_i!=null)
+                {
+                    _i.qtd += c.qtd;
+                }
+                else
+                {
+                    _items.Add(c.produto.IdProdutoServico, c);
+                }                
+            }
 
             CartDto cart = new CartDto();
-            foreach (CartQueryItemDto c in cq.existentes)
-            {
-                if (cq.novo!=null)
-                {
-                    if (c.id == cq.novo.id)
-                    {
-                        have = true;
-                        c.qtd += cq.novo.qtd;
-                    }
-                }
-            }
-            if (cq.novo != null)
-            {
-                if (have == false)
-                {
-                    cq.existentes.Add(cq.novo);
-                }
-            }
 
             cart.total = 0;
 
-            foreach (CartQueryItemDto c in cq.existentes)
-            {
+            var items_agora = from c in _items select (c.Value);
 
-                var p = _produtoDapperRepository.SelectAs(c.id);
+            
+            foreach (CartItemDto c in items_agora)
+            {
+                var p = _produtoDapperRepository.SelectAs(c.produto.IdProdutoServico);
+
                 if (p!=null)
                 {
                     CartItemDto i = new CartItemDto();
@@ -72,15 +75,9 @@ namespace Vendr.Application.Controllers
             }
 
             cart.total_fmt = string.Format("{0:c2}", cart.total);
+            
+            return Ok(cart);
 
-            var ret = new
-            {
-                total = cart.total,
-                total_fmt = cart.total_fmt,
-                items = cart.items.ToArray()
-            };
-
-            return Ok(ret);
         }
         
     }
