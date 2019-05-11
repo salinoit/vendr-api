@@ -40,6 +40,9 @@ namespace Vendr.Infra.Data.Dapper
                      .ForMember(
                         dest => dest.PrecoVenda,
                         opt => opt.MapFrom(src => src.preco_venda)
+                    ).ForMember(
+                        dest => dest.preco_venda_fmt,
+                        opt => opt.MapFrom(src => src.preco_venda_fmt)
                     );
             }
         }

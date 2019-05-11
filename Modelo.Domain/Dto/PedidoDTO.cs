@@ -21,5 +21,15 @@ namespace Vendr.Domain.Dto
 
         public string status_pedido { get; set; }
 
+        public double valor_pedido { get; set; }
+
+        public string valor_pedido_fmt
+        {
+            get
+            {
+                return string.Format("{0:c2}", valor_pedido);
+            }
+        }
+
     }
 }
