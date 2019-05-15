@@ -32,30 +32,7 @@ namespace Vendr.Infra.Data.Dapper
 
         public void Insert(PedidoItemDTO obj)
         {
-            using (SqlConnection con = new SqlConnection(
-          _config.GetConnectionString("DefaultConnection")))
-            {
-                var p = new DynamicParameters();
-                p.Add("EMAIL", obj.id_produto_servico.ToString());              
-
-              //  p.Add("MSG","", dbType: DbType.String, direction: ParameterDirection.Output,size:50);
-
-                try
-                {
-                    con.Execute(@"Vendr.criar_usuario_consumidor", p, commandType: CommandType.StoredProcedure);
-                }
-                catch(Exception po)
-                {
-                    var err = po.Message;
-                }
-
-                var ret = Convert.ToString(p.Get<string>("MSG"));
-
-                if  (ret=="EXIST")
-                {
-                    throw new Exception("Usuário já cadastrado!");
-                }
-            };
+           
         }
 
         public object Select(int id,int id_pedido)
@@ -71,7 +48,7 @@ namespace Vendr.Infra.Data.Dapper
                 var p = new DynamicParameters();
                 p.Add("ID_PEDIDO", id_pedido.ToString());
 
-                var list = con.Query<object>(@"Vendr.web_pedidos_items",p, commandType: CommandType.StoredProcedure);
+                var list = con.Query<object>(@"Vendr.web_lista_pedido_item", p, commandType: CommandType.StoredProcedure);
                 return list.ToList();
 
             };

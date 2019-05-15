@@ -13,7 +13,7 @@ using AutoMapper;
 
 namespace Vendr.Infra.Data.Dapper
 {
-    public class PedidoDapper : IRepository<PedidoDTO>
+    public class PedidoDapper : IRepository<PedidoDTO>,IPedidoDapper
     {
 
         private readonly IConfiguration _config;
@@ -32,30 +32,7 @@ namespace Vendr.Infra.Data.Dapper
 
         public void Insert(PedidoDTO obj)
         {
-            using (SqlConnection con = new SqlConnection(
-          _config.GetConnectionString("DefaultConnection")))
-            {
-                var p = new DynamicParameters();
-                p.Add("EMAIL", obj.id_consumidor.ToString());              
-
-              //  p.Add("MSG","", dbType: DbType.String, direction: ParameterDirection.Output,size:50);
-
-                try
-                {
-                    con.Execute(@"Vendr.criar_usuario_consumidor", p, commandType: CommandType.StoredProcedure);
-                }
-                catch(Exception po)
-                {
-                    var err = po.Message;
-                }
-
-                var ret = Convert.ToString(p.Get<string>("MSG"));
-
-                if  (ret=="EXIST")
-                {
-                    throw new Exception("Usuário já cadastrado!");
-                }
-            };
+            
         }
 
         public object Select(int id)
@@ -74,6 +51,21 @@ namespace Vendr.Infra.Data.Dapper
                 var list = con.Query<object>(@"Vendr.web_pedidos",p, commandType: CommandType.StoredProcedure);
                 return list.ToList();
 
+            };
+        }
+
+        public IList<PedidoDTO> List(int idConsumidor)
+        {
+            using (SqlConnection con = new SqlConnection(
+              _config.GetConnectionString("DefaultConnection")))
+            {
+                var p = new DynamicParameters();
+                p.Add("ID_CONSUMIDOR", idConsumidor);
+
+                var list = con.Query<object>(@"Vendr.web_lista_pedido", p, commandType: CommandType.StoredProcedure);
+
+                return _mapper.Map<IList<PedidoDTO>>(list);
+                
             };
         }
 

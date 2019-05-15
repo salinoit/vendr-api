@@ -21,12 +21,13 @@ namespace Vendr.Application.Controllers
         private readonly IService<ProdutoServico> _ProdutoServicoService;
         private readonly IProdutoDapper _produtoDapperRepository;
         private readonly IMapper _mapper;
-
-        public ProdutoController(IService<ProdutoServico> ProdutoServicoService, IMapper mapper, IProdutoDapper produtoDapperRepository)
+        private readonly Vendr.Infra.Data.Context.DBContext _context;
+        public ProdutoController(IService<ProdutoServico> ProdutoServicoService, IMapper mapper, IProdutoDapper produtoDapperRepository, Vendr.Infra.Data.Context.DBContext context )
         {
             _ProdutoServicoService = ProdutoServicoService;
             _mapper = mapper;
             _produtoDapperRepository = produtoDapperRepository;
+            _context = context;
         }
 
         // GET api/Produto
@@ -66,11 +67,25 @@ namespace Vendr.Application.Controllers
             var t = await _ProdutoServicoService.GetByIdAsync(id);
             var tDto = _mapper.Map<ProdutoDto>(t);
 
+
+            var relact = _context.ProdutoServico.Where(p => p.IdVendedor == t.IdVendedor).Take(4).OrderBy(a=>Guid.NewGuid());
+            var totalVendido = _context.PedidoItem.Count(x => x.IdProdutoServico == t.IdProdutoServico);
+
+            var relact2= _mapper.Map<List<ProdutoDto>>(relact);
+
+            var retorno = new
+            {
+                produto = tDto,
+                relacionados = relact2.ToList(),
+                total_vendido = totalVendido
+            };
+
             if (t == null)
             {
                 return NotFound();
             }
-            return Ok(tDto);
+
+            return Ok(retorno);
         }
 
         //PUT: api/Produto/5

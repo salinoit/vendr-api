@@ -43,6 +43,9 @@ namespace Vendr.Infra.Data.Dapper
                     ).ForMember(
                         dest => dest.preco_venda_fmt,
                         opt => opt.MapFrom(src => src.preco_venda_fmt)
+                    ).ForMember(
+                        dest => dest.Html,
+                        opt => opt.MapFrom(src => src.html)
                     );
             }
         }
@@ -142,7 +145,7 @@ namespace Vendr.Infra.Data.Dapper
                 p.Add("VENDEDOR", vendedor.ToString());
                 p.Add("MYCOUNT", dbType: DbType.Int32, direction: ParameterDirection.Output);
                 //p.Add("c", dbType: DbType.Int32, direction: ParameterDirection.ReturnValue);                
-                var list = con.Query<object>(@"Vendr.PesquisaProdutos",p, commandType: CommandType.StoredProcedure);
+                var list = con.Query<object>(@"Vendr.web_searchbar_produto", p, commandType: CommandType.StoredProcedure);
                 tmp.total = Convert.ToInt32(p.Get<int>("MYCOUNT"));
                 var before= _mapper.Map<IList<ProdutoDtoDapper>>(list);
                

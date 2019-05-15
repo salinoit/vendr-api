@@ -11,6 +11,7 @@ namespace Vendr.Domain.Dto
         public string Descricao { get; set; }
         public decimal PrecoVenda { get; set; }
         public string ImagemProduto { get; set; }
+        public string Html { get; set; }
         public string preco_venda_fmt
         {
             get
@@ -18,6 +19,9 @@ namespace Vendr.Domain.Dto
                 return string.Format("{0:c2}", PrecoVenda);
             }
         }
+
+       
+
     }
 
 }
@@ -29,12 +33,13 @@ namespace Vendr.Domain.Dto
         public string descricao { get; set; }
         public decimal preco_venda { get; set; }
         public string imagem_produto { get; set; }
+        public string html { get; set; }
         public string preco_venda_fmt
-        {
-            get
             {
-                return string.Format("{0:c2}", preco_venda);
+                get
+                {
+                    return string.Format("{0:c2}", preco_venda);
+                }
             }
         }
-    }
 

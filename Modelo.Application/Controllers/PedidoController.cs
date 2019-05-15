@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -18,7 +19,7 @@ namespace Vendr.Application.Controllers
     [Route("api/[controller]")]
     public class PedidoController : Controller
     {
-        
+                
         public class Filtros
         {
 
@@ -33,10 +34,16 @@ namespace Vendr.Application.Controllers
         }
 
         private readonly IRepository<PedidoDTO> _pedidoRepository;
-        
-        public PedidoController(IRepository<PedidoDTO>  usuarioRepository)
+
+        private readonly IPedidoDapper _pedidoDapper;
+
+        private readonly Vendr.Infra.Data.Context.DBContext _context;
+
+        public PedidoController(IRepository<PedidoDTO>  usuarioRepository,IPedidoDapper pedido_dapper, Vendr.Infra.Data.Context.DBContext context)
         {
             _pedidoRepository = usuarioRepository;
+            _context = context;
+            _pedidoDapper = pedido_dapper;
         }
 
 
@@ -45,12 +52,10 @@ namespace Vendr.Application.Controllers
         [Route("Filter")]
         public IEnumerable<PedidoDTO> Filter([FromBody] Filtros filtro)
         {
-            var list = _pedidoRepository.ListAs();
 
-            if (filtro.consumidor>0)
-            {
-                list = list.Where(p => p.id_consumidor == filtro.consumidor).ToList();
-            }
+            if (filtro.consumidor <= 0) throw new Exception("Deve fornecer o id do consumidor");
+
+            var list = _pedidoDapper.List(filtro.consumidor);
 
             if (!String.IsNullOrEmpty(filtro.inicio))
             {
@@ -76,21 +81,89 @@ namespace Vendr.Application.Controllers
 
         //PUT: api/usuario/5
         [HttpPost]
-        public IActionResult Post([FromBody] PedidoDTO usuarioPerfil)
+        public IActionResult Post([FromBody] CartDto cart,[FromQuery] int id_consumidor, [FromQuery] int id_vendedor)
         {
+
+            if (cart.items.Count==0 || id_consumidor==0 || id_vendedor==0)
+            {
+                return BadRequest();
+            }
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
             try
             {
-                _pedidoRepository.Insert(usuarioPerfil);
-                return Ok("OK");
+                Pedido novo = new Pedido();
+                novo.Ativo = true;
+                novo.DataCriacao = System.DateTime.Now;
+                novo.DataPedido = System.DateTime.Now;
+                novo.Desconto = 0;
+                novo.FormaPagamento = "1";
+                novo.IdConsumidor = id_consumidor;
+                novo.IdVendedor = id_vendedor;
+                novo.IdStatusPedido = 1;
+                novo.ValorFrete = 0;
+                novo.ValorPedido = Convert.ToDecimal(cart.total);
+                novo.Periodo = 1;
+
+                foreach (CartItemDto x in cart.items)
+                {
+                    PedidoItem item = new PedidoItem();
+                    item.Ativo = true;
+                    item.IdProdutoServico = x.produto.IdProdutoServico;
+                    item.LastUpdate = 1;
+                    item.Quantidade = x.qtd;
+                    item.PrecoUnitario = x.produto.PrecoVenda;
+                    item.PrecoFinal = (x.produto.PrecoVenda * x.qtd);
+                    item.PrecoCusto = x.produto.PrecoVenda;
+                    novo.PedidoItem.Add(item);
+                }
+
+                _context.Add(novo);
+
+                _context.SaveChanges();
+
+                return Ok(novo.IdPedido);
+
             }
             catch (Exception e)
             {
-                return Ok("Usuário já cadastrado!");
+                return  BadRequest();
             }
+        }
+
+
+        [HttpGet]
+        [Route("Inserir")]
+        public ActionResult Inserir()
+        {
+            Pedido novo = new Pedido();
+            novo.Ativo = true;
+            novo.DataCriacao = System.DateTime.Now;
+            novo.DataPedido= System.DateTime.Now;
+            novo.Desconto = 0;
+            novo.FormaPagamento = "1";
+            novo.IdConsumidor = 1044638;
+            novo.IdVendedor = 145;
+            novo.ValorFrete = 10;
+            novo.ValorPedido = 100;
+            novo.Periodo = 1;
+
+            PedidoItem item = new PedidoItem();
+            item.Ativo = true;
+            item.IdProdutoServico = 1556;
+            item.LastUpdate = 1;
+            item.Quantidade = 1;
+            item.PrecoFinal = 100;
+            item.PrecoCusto = 50;
+
+            novo.PedidoItem.Add(item);
+
+            _context.Add(novo);
+            _context.SaveChanges();
+
+            return Content("ok");
         }
     }
 

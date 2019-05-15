@@ -46,10 +46,11 @@ namespace Vendr.Infra.Data.Context
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
+
             if (!optionsBuilder.IsConfigured)
             {
                 //#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseSqlServer("Server=198.38.85.100,51433;Database=CD_163513_Vendr_HML;user=vendrhml2019;password=vendr@2019");
+                optionsBuilder.UseSqlServer("Server=localhost\\sqlexpress;Database=db2;user=salino;password=s@lino123");
             }
         }
 

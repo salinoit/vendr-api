@@ -11,6 +11,8 @@ namespace Vendr.Domain.Dto
 
         public int id_perfil { get; set; }
 
+        public int id_consumidor { get; set; }
+
         public string email { get; set; }
 
         public string senha { get; set; }

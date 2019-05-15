@@ -16,6 +16,7 @@ namespace Vendr.Domain.Entities
         public int IdVendedor { get; set; }
         public int IdCategoria { get; set; }
         public string Tipo { get; set; }
+        public string Html { get; set; }
         public string Descricao { get; set; }
         public string CodigoBarras { get; set; }
         public decimal PrecoVenda { get; set; }

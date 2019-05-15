@@ -45,7 +45,7 @@ namespace Vendr.Infra.Data.Dapper
 
                 try
                 {
-                    con.Execute(@"Vendr.criar_usuario_consumidor", p, commandType: CommandType.StoredProcedure);
+                    con.Execute(@"Vendr.web_cria_usuario_consumidor", p, commandType: CommandType.StoredProcedure);
                 }
                 catch(Exception po)
                 {
@@ -72,7 +72,7 @@ namespace Vendr.Infra.Data.Dapper
               _config.GetConnectionString("DefaultConnection")))
             {
                             
-                var list = con.Query<object>(@"Vendr.lista_usuarios_consumidores", commandType: CommandType.StoredProcedure);
+                var list = con.Query<object>(@"Vendr.web_lista_usuario_consumidor", commandType: CommandType.StoredProcedure);
                 return list.ToList();
 
             };
@@ -106,7 +106,7 @@ namespace Vendr.Infra.Data.Dapper
                 {
                     p.Add("FOTO", obj.foto.ToString());
                 }
-                var result = con.Query<object>(@"Vendr.atualiza_usuario_consumidor", p, commandType: CommandType.StoredProcedure);
+                var result = con.Query<object>(@"Vendr.web_atualiza_usuario_consumidor", p, commandType: CommandType.StoredProcedure);
             };
         }
     }

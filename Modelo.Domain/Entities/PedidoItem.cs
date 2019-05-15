@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Vendr.Domain.Entities
 {
-    public partial class PedidoItem
+    public partial class PedidoItem : BaseEntity 
     {
         public int IdPedidoItem { get; set; }
         public int IdPedido { get; set; }
