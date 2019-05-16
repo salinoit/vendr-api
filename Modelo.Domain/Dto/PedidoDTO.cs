@@ -7,7 +7,18 @@ namespace Vendr.Domain.Dto
     public class PedidoDTO
     {
 
-        public int id_pedido { get; set; }
+        private string _id_pedido;
+
+        public string id_pedido {
+            get
+            {
+                return Convert.ToInt32(_id_pedido).ToString("d6");
+            }
+            set
+            {
+                _id_pedido = value;
+            }
+        }
 
         public int id_consumidor { get; set; }
 

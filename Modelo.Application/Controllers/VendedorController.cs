@@ -35,14 +35,15 @@ namespace Vendr.Application.Controllers
         }
 
         // GET api/vendedor/5
-        [HttpGet("{id}")]
+        [HttpGet]
+        [Route("{id}")]
         public IActionResult Get([FromRoute] int id)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            var t = _vendedorDapper.SelectAs(id);            
+            var t = _vendedorDapper.Select(id);            
 
             if (t == null)
             {
@@ -51,26 +52,9 @@ namespace Vendr.Application.Controllers
             return Ok(t);
         }
 
-        // GET api/vendedor/sample@sample.com
-        //[HttpGet("{email}")]
-        //public async Task<IActionResult> Get([FromRoute] string email)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return BadRequest(ModelState);
-        //    }
-        //    var list = await _vendedorService.GetAllAsync();
-        //    var t = list.FirstOrDefault();
-        //    if (t == null)
-        //    {
-        //        return NotFound();
-        //    }
-        //    return Ok(t);
-        //}
-
-
         //PUT: api/vendedor/5
-        [HttpPut("{id}")]
+        [HttpPut]
+        [Route("put/{id}")]
         public async Task<IActionResult> Put([FromRoute] int id, [FromBody] Vendedor vendedor)
         {
             if (!ModelState.IsValid)
@@ -83,7 +67,7 @@ namespace Vendr.Application.Controllers
             }
             try
             {
-                 await _vendedorService.UpdateAsync(vendedor);
+                await _vendedorService.UpdateAsync(vendedor);
             }
             catch (DbUpdateConcurrencyException ex)
             {
@@ -113,7 +97,8 @@ namespace Vendr.Application.Controllers
         }
 
         //DELETE: api/vendedor/1
-        [HttpDelete("{id}")]
+        [HttpDelete]
+        [Route("delete/{id}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
             if (!ModelState.IsValid)
@@ -125,7 +110,7 @@ namespace Vendr.Application.Controllers
             {
                 return NotFound();
             }
-            
+
             await _vendedorService.DeleteAsync(id);
             return Ok(result);
 

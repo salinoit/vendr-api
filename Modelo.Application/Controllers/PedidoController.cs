@@ -35,15 +35,24 @@ namespace Vendr.Application.Controllers
 
         private readonly IRepository<PedidoDTO> _pedidoRepository;
 
+        private readonly IRepository<VendedorDto> _vendedorRepository;
+
+        private readonly IRepository<UsuarioDto> _usuarioRepository;
+
+        private readonly IPedidoItemDApper _pedidoItemRepository;
+
         private readonly IPedidoDapper _pedidoDapper;
 
         private readonly Vendr.Infra.Data.Context.DBContext _context;
 
-        public PedidoController(IRepository<PedidoDTO>  usuarioRepository,IPedidoDapper pedido_dapper, Vendr.Infra.Data.Context.DBContext context)
+        public PedidoController(IRepository<PedidoDTO>  usuarioRepository,IPedidoDapper pedido_dapper, Vendr.Infra.Data.Context.DBContext context, IPedidoItemDApper pedido_items, IRepository<VendedorDto> vendedor_repo, IRepository<UsuarioDto> usuario_repo)
         {
             _pedidoRepository = usuarioRepository;
             _context = context;
             _pedidoDapper = pedido_dapper;
+            _pedidoItemRepository = pedido_items;
+            _vendedorRepository = vendedor_repo;
+            _usuarioRepository = usuario_repo;
         }
 
 
@@ -53,13 +62,16 @@ namespace Vendr.Application.Controllers
         public IEnumerable<PedidoDTO> Filter([FromBody] Filtros filtro)
         {
 
+            DateTime inicio = Convert.ToDateTime(filtro.inicio + " 00:00:00");
+            DateTime fim = Convert.ToDateTime(filtro.fim + " 23:59:59");
+
             if (filtro.consumidor <= 0) throw new Exception("Deve fornecer o id do consumidor");
 
             var list = _pedidoDapper.List(filtro.consumidor);
 
             if (!String.IsNullOrEmpty(filtro.inicio))
             {
-                list = list.Where(p => p.data_pedido>= Convert.ToDateTime(filtro.inicio) && p.data_pedido<=Convert.ToDateTime(filtro.fim)).ToList();
+                list = list.Where(p => p.data_pedido>= inicio && p.data_pedido<=fim).ToList();
             }
 
             if (filtro.status > 0)
@@ -135,35 +147,30 @@ namespace Vendr.Application.Controllers
 
 
         [HttpGet]
-        [Route("Inserir")]
-        public ActionResult Inserir()
+        [Route("{id}")]
+        public IActionResult Pedido([FromRoute] int id)
         {
-            Pedido novo = new Pedido();
-            novo.Ativo = true;
-            novo.DataCriacao = System.DateTime.Now;
-            novo.DataPedido= System.DateTime.Now;
-            novo.Desconto = 0;
-            novo.FormaPagamento = "1";
-            novo.IdConsumidor = 1044638;
-            novo.IdVendedor = 145;
-            novo.ValorFrete = 10;
-            novo.ValorPedido = 100;
-            novo.Periodo = 1;
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
 
-            PedidoItem item = new PedidoItem();
-            item.Ativo = true;
-            item.IdProdutoServico = 1556;
-            item.LastUpdate = 1;
-            item.Quantidade = 1;
-            item.PrecoFinal = 100;
-            item.PrecoCusto = 50;
+            var p = _pedidoRepository.SelectAs(id);
 
-            novo.PedidoItem.Add(item);
+            var i = _pedidoItemRepository.ListAs(id);
 
-            _context.Add(novo);
-            _context.SaveChanges();
+            var v = _vendedorRepository.Select(p.id_vendedor);
 
-            return Content("ok");
+            var u = _usuarioRepository.Select(p.id_consumidor);
+
+            var retorno = new
+            {
+                pedido = p,
+                items = i,
+                vendedor = v,
+                cliente = u
+            };
+            return Ok(retorno);
         }
     }
 

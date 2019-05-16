@@ -26,7 +26,23 @@ namespace Vendr.Application.Controllers
             _usuarioRepository = usuarioRepository;
         }
 
-       
+        [HttpGet]
+        [Route("{id}")]
+        public IActionResult Get([FromRoute] int id)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var t = _usuarioRepository.Select(id);
+
+            if (t == null)
+            {
+                return NotFound();
+            }
+            return Ok(t);
+        }
+
         //PUT: api/usuario/5
         [HttpPut("{id}")]
         public IActionResult Put([FromRoute] int id, [FromBody] UsuarioDto usuarioPerfil)

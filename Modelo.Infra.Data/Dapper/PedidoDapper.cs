@@ -37,20 +37,17 @@ namespace Vendr.Infra.Data.Dapper
 
         public object Select(int id)
         {
-            return ListAs().Where(p => p.id_pedido == id);
+            return ListAs().Where(p => Convert.ToInt32(p.id_pedido) == id).FirstOrDefault();
         }
 
         public IList<object> List()
         {
             using (SqlConnection con = new SqlConnection(
-              _config.GetConnectionString("DefaultConnection")))
+             _config.GetConnectionString("DefaultConnection")))
             {
-                var p = new DynamicParameters();
-                p.Add("ID_CONSUMIDOR", "0");
 
-                var list = con.Query<object>(@"Vendr.web_pedidos",p, commandType: CommandType.StoredProcedure);
-                return list.ToList();
-
+                var list = con.Query<object>(@"Vendr.web_lista_pedido", commandType: CommandType.StoredProcedure);
+                return list.AsList();
             };
         }
 

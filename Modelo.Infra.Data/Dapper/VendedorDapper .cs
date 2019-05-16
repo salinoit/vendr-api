@@ -40,7 +40,9 @@ namespace Vendr.Infra.Data.Dapper
             using (SqlConnection con = new SqlConnection(
              _config.GetConnectionString("DefaultConnection")))
             {
-                var obj = con.QueryFirst<object>(@"SELECT V.id_vendedor,P.nome, P.email,P.foto, V.id_perfil FROM vendr.vendedor V inner join vendr.perfil P on V.id_perfil=P.id_perfil  WHERE V.id_vendedor=@id", new { id=id});
+                var p = new DynamicParameters();
+                p.Add("ID_VENDEDOR", id);
+                var obj = con.QueryFirst<object>(@"vendr.web_lista_vendedor",p,commandType:CommandType.StoredProcedure);
 
                 return obj;
             };
@@ -51,7 +53,7 @@ namespace Vendr.Infra.Data.Dapper
             using (SqlConnection con = new SqlConnection(
              _config.GetConnectionString("DefaultConnection")))
             {
-                var list = con.Query<object>(@"SELECT V.id_vendedor,P.nome, P.email, V.id_perfil FROM vendr.vendedor V inner join vendr.perfil P on V.id_perfil=P.id_perfil  ");
+                var list = con.Query<object>(@"vendr.web_lista_vendedor",commandType:CommandType.StoredProcedure);
                 return list.AsList();
             };
 
